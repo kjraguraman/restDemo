@@ -96,7 +96,7 @@ public class EmployeeRepository{
     }
 
     //Update an Employee
-    public void updateEmployee(Employee emp){
+    public void updateEmployee(int empId,Employee emp){
         String query="update employees set Name=?,Department=?,Salary=?,Age=?,Mobile=? where Id=?";
         Connection con=DBConnect.getConnection();
         try {
@@ -106,7 +106,7 @@ public class EmployeeRepository{
             int salary=emp.getSalary();
             int age=emp.getAge();
             long mobile=emp.getMobile();
-            int id=emp.getId();
+            int id=empId;
             stmt.setString(1,name);
             stmt.setString(2,department);
             stmt.setInt(3,salary);
@@ -143,7 +143,7 @@ public class EmployeeRepository{
     }
 
     //Get the Vehicle details of Employee by employee id
-    public List<Vehicle> getVehicleDetails(int empId){
+    public List<Vehicle> getVehicles(int empId){
         List<Vehicle> vehicles=new ArrayList<>();
         String query="select * from empVehicles where EmpId=?";
         Connection con=DBConnect.getConnection();
@@ -161,11 +161,93 @@ public class EmployeeRepository{
             result.close();
         }catch (Exception e){
             e.printStackTrace();
-            System.out.println("Error while getting Vehicle Details");
+            System.out.println("Error while getting Vehicles");
         }
         try {
             con.close();
         } catch (SQLException e) {}
         return vehicles;
+    }
+
+    //Get a vehicle details of Employee by vehicle id
+    public Vehicle getVehicle(int vehicleId){
+        Vehicle vehicle=new Vehicle();
+        String query="select * from empVehicles where vehicleId=?";
+        Connection con=DBConnect.getConnection();
+        try{
+            PreparedStatement stmt=con.prepareStatement(query);
+            stmt.setInt(1,vehicleId);
+            ResultSet result=stmt.executeQuery();
+            if(result.next()){
+                vehicle.setVehicleId(result.getInt(1));
+                vehicle.setRegNo(result.getString(2));
+                vehicle.setCompanyName(result.getString(3));
+            }
+            result.close();
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Error while getting Vehicle");
+        }
+        try {
+            con.close();
+        } catch (SQLException e) {}
+        return vehicle;
+    }
+
+    //Add vehicle to employee
+    public void addVehicle(int empId,Vehicle vehicle){
+        String query="insert into empVehicles(vehicleRegNo,vehicleCompName,empId) values(?,?,?)";
+        Connection con=DBConnect.getConnection();
+        try{
+            PreparedStatement stmt= con.prepareStatement(query);
+            stmt.setString(1,vehicle.getRegNo());
+            stmt.setString(2,vehicle.getCompanyName());
+            stmt.setInt(3,empId);
+            stmt.executeUpdate();
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Error while adding vehicle to employee");
+        }
+        try {
+            con.close();
+        } catch (SQLException e) {}
+    }
+
+    //Update employee vehicle
+    public void updateVehicle(int vehicleId,Vehicle vehicle){
+        String query="update empVehicles set vehicleRegNo=?,vehicleCompName=? where vehicleId=?";
+        Connection con=DBConnect.getConnection();
+        try {
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1,vehicle.getRegNo());
+            stmt.setString(2,vehicle.getCompanyName());
+            stmt.setInt(3,vehicleId);
+            int rows=stmt.executeUpdate();
+            System.out.println(rows+" rows updated");
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println(" Error While Updating Employee");
+        }
+        try {
+            con.close();
+        } catch (SQLException e) {}
+    }
+
+    //Delete employee Vehicle
+    public void deleteVehicle(int vehicleId){
+        String query="delete from empVehicles where vehicleId=?";
+        Connection con=DBConnect.getConnection();
+        try{
+            PreparedStatement stmt= con.prepareStatement(query);
+            stmt.setInt(1,vehicleId);
+            int rows=stmt.executeUpdate();
+            System.out.println(rows+" rows deleted");
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Error while deleting Vehicle");
+        }
+        try {
+            con.close();
+        } catch (SQLException e) {}
     }
 }
